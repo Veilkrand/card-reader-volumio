@@ -1,0 +1,10 @@
+[Unit]
+Description=Card Reader for Volumio
+After = volumio.service
+
+[Service]
+ExecStart=/usr/bin/python /home/volumio/card-reader-volumio/card_reader.py 
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
