@@ -1,7 +1,7 @@
 from __future__ import print_function
 from HID_Reader import HID_Reader
 from volumio import Volumio
-
+import time
 
 v = Volumio()
 
@@ -18,9 +18,9 @@ _db = {
 		'uri' : 'spotify:album:7vEJAtP3KgKSpOHVgwm3Eh' # 1 the Beatles
 	},
 	'0015764039' : {
-		'name' : 'Pika Pika',
+		'name' : 'Pica Pica',
 		'service' : 'spop',
-		'uri' : 'spotify:album:7lRcKpMoYWFNvn2VLrXycs' # Pika Pika
+		'uri' : 'spotify:artist:3oaNnQa52hlN69wvaatUE2' # Pika Pika
 	},
 	'0015767683' : {
 		'name' : 'Opera 100',
@@ -38,6 +38,7 @@ _db = {
 }
 
 _last_uri = ''
+_last_time = 0.0
 
 def newline_callback(data):
 	print(data)
@@ -49,11 +50,11 @@ def volumio_callback(data, *args):
 
 
 def play_id(id):
-	global _last_uri
+	global _last_uri, _last_time
 	if id in _db:
-
-		if (_last_uri == _db[id]['uri']):
-			print('Uri already opened')
+		_delta = time.time()-_last_time
+		if (_last_uri == _db[id]['uri'] and _delta<5):
+			print('Uri already opened 5 seconds ago')
 			return False
 
 		print('Queueing {}'.format(_db[id]['name']))
@@ -62,6 +63,7 @@ def play_id(id):
 		v._send('clearQueue')
 		v._send('addPlay', {'status':'play', 'service':service, 'uri':uri}, callback=volumio_callback)
 		_last_uri = uri
+		_last_time = time.time()
 		return True
 	else:
 		print('Id not found!')
